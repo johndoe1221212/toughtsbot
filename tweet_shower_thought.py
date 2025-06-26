@@ -1,26 +1,32 @@
-import os
 import praw
 import tweepy
 import random
 import time
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import threading
 
-# Reddit credentials (from GitHub Secrets)
+# Reddit credentials (hardcoded)
 reddit = praw.Reddit(
-    client_id=os.environ['REDDIT_CLIENT_ID'],
-    client_secret=os.environ['REDDIT_CLIENT_SECRET'],
-    user_agent=os.environ['REDDIT_USER_AGENT']
+    client_id='ezPbHCuMJj1ChN3AgnnNsQ',
+    client_secret='Fo-_z2FPZU7cnkASLULylNDEJ0jCMQ',
+    user_agent='ShowerThoughtsBot by u/Typical_Farm6742'
 )
 
-# Twitter credentials (OAuth1 User authentication)
-auth = tweepy.OAuth1UserHandler(
-    consumer_key=os.environ['TWITTER_CONSUMER_KEY'],
-    consumer_secret=os.environ['TWITTER_CONSUMER_SECRET'],
-    access_token=os.environ['TWITTER_ACCESS_TOKEN'],
-    access_token_secret=os.environ['TWITTER_ACCESS_TOKEN_SECRET']
+# Twitter credentials (hardcoded)
+bearer_token = 'AAAAAAAAAAAAAAAAAAAAAL0Y2wEAAAAAS6rOXdIUA6or9yp0KwkYJ7S8tbQ%3Daf3RSaYf3a8cQyalKoayZ3mF0rARL1GVOlFaML4zB8CrcrU2jO'
+consumer_key = 'JYAsQiOuOQQavkxN4B1Uf1kch'
+consumer_secret = '9kEoZ5UfxsDok8OP6QY9GdtxaoNEQPBTugcdMVP8yBtdNbE05Q'
+access_token = '1938321275136442368-zGLGpqRpoU6yolyUMPXsVUZdMjwgXS'
+access_token_secret = 'Pu0O9kSnDH6rPykLzzQ0eoIyDHAsnQePOtuzCJve8XLrN'
+
+# Initialize Tweepy Client (v2)
+client = tweepy.Client(
+    bearer_token=bearer_token,
+    consumer_key=consumer_key,
+    consumer_secret=consumer_secret,
+    access_token=access_token,
+    access_token_secret=access_token_secret
 )
-api = tweepy.API(auth, wait_on_rate_limit=True)
 
 def is_good_post(post):
     return (
@@ -32,41 +38,33 @@ def is_good_post(post):
 
 def fetch_good_posts():
     subreddit = reddit.subreddit('ShowerThoughts')
-    posts = list(subreddit.hot(limit=200))  # more posts for variety
+    posts = list(subreddit.hot(limit=200))  # get more posts for variety
     candidates = [p for p in posts if is_good_post(p)]
     return candidates
 
-def post_thought(thought, max_retries=3):
-    attempt = 0
-    while attempt < max_retries:
-        try:
-            api.update_status(thought)
-            print(f"[{datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')} UTC] Tweeted: {thought[:60]}...")
-            return True
-        except tweepy.TweepError as e:
-            attempt += 1
-            print(f"[{datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')} UTC] Error tweeting: {e}. Retry {attempt}/{max_retries}")
-            time.sleep(10 * attempt)  # exponential backoff
-    print(f"Failed to tweet after {max_retries} attempts.")
-    return False
+def post_thought(thought):
+    try:
+        response = client.create_tweet(text=thought)
+        print(f"[{datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S %Z')}] Tweeted: {thought[:60]}...")
+    except Exception as e:
+        print(f"[{datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S %Z')}] Error tweeting:", e)
 
 def schedule_posts(times_utc, posts):
     posted_indices = set()
 
     def schedule_single_post(post_index, post_time):
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         wait_seconds = (post_time - now).total_seconds()
         if wait_seconds < 0:
-            wait_seconds += 86400  # schedule for next day
+            # Schedule for next day if time passed
+            wait_seconds += 86400
         threading.Timer(wait_seconds, lambda: post_thought(posts[post_index].title)).start()
-        print(f"Scheduled post #{post_index} at {post_time.strftime('%H:%M:%S')} UTC (in {int(wait_seconds)} seconds)")
+        print(f"Scheduled post #{post_index} at {post_time.strftime('%H:%M:%S %Z')} UTC (in {int(wait_seconds)} seconds)")
 
     for i, base_hour in enumerate(times_utc):
-        # ±3 minutes randomness
         minute_offset = random.randint(-3, 3)
-        scheduled_time = datetime.utcnow().replace(hour=base_hour, minute=0, second=0, microsecond=0) + timedelta(minutes=minute_offset)
+        scheduled_time = datetime.now(timezone.utc).replace(hour=base_hour, minute=0, second=0, microsecond=0) + timedelta(minutes=minute_offset)
 
-        # Ensure unique posts
         available_indices = set(range(len(posts))) - posted_indices
         if not available_indices:
             print("Ran out of unique posts!")
@@ -77,23 +75,23 @@ def schedule_posts(times_utc, posts):
         schedule_single_post(post_index, scheduled_time)
 
 def main():
-    print(f"[{datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')} UTC] Fetching good posts from Reddit...")
+    print(f"[{datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S %Z')}] Fetching good posts from Reddit...")
     posts = fetch_good_posts()
     if len(posts) < 16:
-        print(f"Warning: Only found {len(posts)} good posts, will schedule fewer tweets.")
+        print(f"Warning: Only found {len(posts)} good posts to tweet.")
 
-    # 16 best global hours in UTC (approximate peak times)
     best_hours_utc = [0, 1, 2, 3, 4, 5, 6, 8, 10, 12, 14, 16, 18, 20, 22, 23]
 
-    schedule_count = min(16, len(posts))
-    schedule_posts(best_hours_utc[:schedule_count], posts)
+    print(f"Scheduling up to 16 tweets daily at best global engagement hours with ±3 minutes randomness...")
+    schedule_posts(best_hours_utc[:min(16, len(posts))], posts)
 
-    print(f"[{datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')} UTC] Bot is running and waiting for scheduled tweets...")
+    print("Bot is running and waiting for scheduled tweets...")
     while True:
-        time.sleep(60)  # keep script alive
+        time.sleep(60)
 
 if __name__ == "__main__":
     main()
+
 
 
 
