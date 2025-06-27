@@ -1,7 +1,6 @@
 import praw
 import tweepy
 import random
-import sys
 from datetime import datetime, timezone
 
 # Reddit credentials (hardcoded)
@@ -30,7 +29,7 @@ def is_good_post(post):
         not post.over_18
     )
 
-def tweet_showerthought():
+def create_tweet():
     subreddit = reddit.subreddit('ShowerThoughts')
     posts = list(subreddit.hot(limit=200))
     good_posts = [p for p in posts if is_good_post(p)]
@@ -45,6 +44,6 @@ def tweet_showerthought():
         print(f"Error tweeting: {e}")
 
 if __name__ == "__main__":
-    tweet_showerthought()
+    create_tweet()
 
 
