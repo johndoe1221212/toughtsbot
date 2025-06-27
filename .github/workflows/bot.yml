@@ -2,23 +2,21 @@ name: Twitter Bot Scheduler
 
 on:
   schedule:
-    # 10 times for tweeting ShowerThoughts starting at 10:00 UTC
-    - cron: '0 10 * * *'  # 10:00 UTC
-    - cron: '0 12 * * *'  # 12:00 UTC
-    - cron: '0 14 * * *'  # 14:00 UTC
-    - cron: '0 17 * * *'  # 17:00 UTC
-    - cron: '0 20 * * *'  # 20:00 UTC
-    - cron: '0 22 * * *'  # 22:00 UTC
-    - cron: '0 0 * * *'   # 00:00 UTC (next day)
-    - cron: '0 2 * * *'   # 02:00 UTC
-    - cron: '0 4 * * *'   # 04:00 UTC
-    - cron: '0 7 * * *'   # 07:00 UTC
-
-    # 4 times for replying to viral tweets starting at 13:15 UTC
-    - cron: '15 13 * * *' # 13:15 UTC
-    - cron: '15 17 * * *' # 17:15 UTC
-    - cron: '15 21 * * *' # 21:15 UTC
-    - cron: '15 1 * * *'  # 01:15 UTC (next day)
+    # 14 scheduled tweets every day at various times UTC
+    - cron: '0 10 * * *'
+    - cron: '0 12 * * *'
+    - cron: '0 14 * * *'
+    - cron: '0 15 * * *'
+    - cron: '0 16 * * *'
+    - cron: '0 17 * * *'
+    - cron: '0 18 * * *'
+    - cron: '0 19 * * *'
+    - cron: '0 20 * * *'
+    - cron: '0 21 * * *'
+    - cron: '0 22 * * *'
+    - cron: '0 23 * * *'
+    - cron: '0 0 * * *'
+    - cron: '0 1 * * *'
 
 jobs:
   run-bot:
@@ -39,28 +37,7 @@ jobs:
           pip install praw tweepy
 
       - name: Run tweet bot
-        if: github.event.schedule == '0 10 * * *' || github.event.schedule == '0 12 * * *' || github.event.schedule == '0 14 * * *' || github.event.schedule == '0 17 * * *' || github.event.schedule == '0 20 * * *' || github.event.schedule == '0 22 * * *' || github.event.schedule == '0 0 * * *' || github.event.schedule == '0 2 * * *' || github.event.schedule == '0 4 * * *' || github.event.schedule == '0 7 * * *'
-        env:
-          REDDIT_CLIENT_ID: ${{ secrets.REDDIT_CLIENT_ID }}
-          REDDIT_CLIENT_SECRET: ${{ secrets.REDDIT_CLIENT_SECRET }}
-          REDDIT_USER_AGENT: ${{ secrets.REDDIT_USER_AGENT }}
-          TWITTER_CONSUMER_KEY: ${{ secrets.TWITTER_CONSUMER_KEY }}
-          TWITTER_CONSUMER_SECRET: ${{ secrets.TWITTER_CONSUMER_SECRET }}
-          TWITTER_ACCESS_TOKEN: ${{ secrets.TWITTER_ACCESS_TOKEN }}
-          TWITTER_ACCESS_TOKEN_SECRET: ${{ secrets.TWITTER_ACCESS_TOKEN_SECRET }}
-        run: python tweet_shower_thought.py tweet
-
-      - name: Run reply bot
-        if: github.event.schedule == '15 13 * * *' || github.event.schedule == '15 17 * * *' || github.event.schedule == '15 21 * * *' || github.event.schedule == '15 1 * * *'
-        env:
-          REDDIT_CLIENT_ID: ${{ secrets.REDDIT_CLIENT_ID }}
-          REDDIT_CLIENT_SECRET: ${{ secrets.REDDIT_CLIENT_SECRET }}
-          REDDIT_USER_AGENT: ${{ secrets.REDDIT_USER_AGENT }}
-          TWITTER_CONSUMER_KEY: ${{ secrets.TWITTER_CONSUMER_KEY }}
-          TWITTER_CONSUMER_SECRET: ${{ secrets.TWITTER_CONSUMER_SECRET }}
-          TWITTER_ACCESS_TOKEN: ${{ secrets.TWITTER_ACCESS_TOKEN }}
-          TWITTER_ACCESS_TOKEN_SECRET: ${{ secrets.TWITTER_ACCESS_TOKEN_SECRET }}
-        run: python tweet_shower_thought.py reply
+        run: python tweet_shower_thought.py
 
 
 
