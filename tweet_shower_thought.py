@@ -72,7 +72,7 @@ def reply_to_viral_tweet():
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
-        print("Usage: python bot.py [tweet|reply]")
+        print("Usage: python tweet_shower_bot.py [tweet|reply]")
         sys.exit(1)
 
     action = sys.argv[1].lower()
