@@ -67,7 +67,7 @@ jobs:
           pip install praw tweepy
 
       - name: Run reply bot
-        run: python tweet_shower_bot.py reply
+        run: python tweet_shower_thought.py reply
         env:
           REDDIT_CLIENT_ID: ${{ secrets.REDDIT_CLIENT_ID }}
           REDDIT_CLIENT_SECRET: ${{ secrets.REDDIT_CLIENT_SECRET }}
