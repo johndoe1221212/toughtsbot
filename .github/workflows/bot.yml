@@ -1,6 +1,7 @@
 name: Twitter Bot Scheduler
 
 on:
+  workflow_dispatch:        # Allow manual triggering for testing
   schedule:
     # 14 scheduled tweets every day at various times UTC
     - cron: '0 10 * * *'
@@ -35,6 +36,11 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install praw tweepy
+
+      - name: Debug - Show repo files and Python version
+        run: |
+          ls -la
+          python --version
 
       - name: Run tweet bot
         run: python tweet_shower_thought.py
