@@ -26,7 +26,7 @@ client = tweepy.Client(
 def is_good_post(post):
     return (
         20 < len(post.title) <= 280 and
-        post.score >= 50 and
+        post.score >= 20 and
         not post.stickied and
         not post.over_18
     )
