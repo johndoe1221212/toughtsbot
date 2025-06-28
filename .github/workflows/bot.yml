@@ -2,17 +2,17 @@ name: Twitter Bot Scheduler
 
 on:
   schedule:
-    # 14 scheduled tweets every day at various times UTC
-- cron: '0 7 * * *'   # 7:00 AM UTC - early engagement start
-- cron: '0 8 * * *'   # 8:00 AM UTC - morning peak
-- cron: '0 11 * * *'  # 11:00 AM UTC - late morning high
-- cron: '0 13 * * *'  # 1:00 PM UTC - lunchtime engagement
-- cron: '0 17 * * *'  # 5:00 PM UTC - early evening
-- cron: '0 18 * * *'  # 6:00 PM UTC - evening peak
-- cron: '0 20 * * *'  # 8:00 PM UTC - late evening
-- cron: '0 21 * * *'  # 9:00 PM UTC - high engagement
-- cron: '0 22 * * *'  # 10:00 PM UTC - late night
-- cron: '0 23 * * *'  # 11:00 PM UTC - last peak before midnight
+     - cron: '0 7 * * *'
+     - cron: '0 8 * * *'
+     - cron: '0 11 * * *'
+     - cron: '0 13 * * *'
+     - cron: '0 17 * * *'
+     - cron: '0 18 * * *'
+     - cron: '0 20 * * *'
+     - cron: '0 21 * * *'
+     - cron: '0 22 * * *'
+     - cron: '0 23 * * *'
+
 
   workflow_dispatch:
 
