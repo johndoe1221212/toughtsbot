@@ -28,7 +28,8 @@ def is_good_post(post):
         20 < len(post.title) <= 280 and
         post.score >= 20 and
         not post.stickied and
-        not post.over_18
+        not post.over_18 and
+        post.is_self 
     )
 
 def main():
